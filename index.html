@@ -561,6 +561,30 @@ i.dn-dot{font-style:normal}
 .ccancel{border:1.5px solid var(--line);background:none;color:var(--ink)}
 .restore-def{width:100%;min-height:44px;border:1.5px dashed var(--brand2);background:none;color:var(--brand2);border-radius:12px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;margin-bottom:14px}
 
+.mem-tabs-wrap{display:flex;align-items:center;gap:8px;margin-bottom:12px;overflow:hidden}
+.mem-tabs-scroll{display:flex;align-items:center;gap:8px;overflow-x:auto;flex:1;padding:4px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mem-tabs-scroll::-webkit-scrollbar{display:none}
+.mem-tab{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1.5px solid var(--line);border-radius:20px;background:color-mix(in srgb,var(--paper) 60%,transparent);color:var(--mute);font:inherit;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:border-color .15s,color .15s,background .15s;user-select:none;-webkit-tap-highlight-color:transparent}
+.mem-tab:hover{border-color:var(--brand2);color:var(--ink)}
+.mem-tab.active{border-color:var(--brand2);background:color-mix(in srgb,var(--brand2) 16%,transparent);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px color-mix(in srgb,var(--brand2) 35%,transparent)}
+.mem-tab-badge{font-size:11px;padding:1px 6px;border-radius:10px;background:color-mix(in srgb,var(--line) 50%,transparent);color:var(--mute);font-weight:600}
+.mem-tab.active .mem-tab-badge{background:var(--brand2);color:var(--paper)}
+.mem-tab-edit-btn{border:none;background:none;color:inherit;padding:0;margin-left:2px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;opacity:.65;transition:opacity .15s}
+.mem-tab-edit-btn:hover{opacity:1;color:var(--brand)}
+.mem-tab-edit-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2}
+.mem-tab-add{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border:1.5px dashed var(--brand2);border-radius:20px;background:none;color:var(--brand2);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s}
+.mem-tab-add:hover{background:color-mix(in srgb,var(--brand2) 12%,transparent)}
+.mem-tab-add svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4}
+.mem-tab-inline-edit{display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border:1.5px solid var(--brand2);border-radius:20px;background:var(--paper);flex-shrink:0}
+.mem-tab-input{border:none;background:transparent;color:var(--ink);font:inherit;font-size:13px;font-weight:600;padding:2px 4px;width:95px;outline:none}
+.mem-tab-btn-ok,.mem-tab-btn-del,.mem-tab-btn-cancel{border:none;background:none;cursor:pointer;padding:3px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;line-height:1}
+.mem-tab-btn-ok{color:var(--saffron)}
+.mem-tab-btn-ok svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5}
+.mem-tab-btn-del{color:var(--rust)}
+.mem-tab-btn-del svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2}
+.mem-tab-btn-cancel{color:var(--mute)}
+.mem-tab-btn-cancel svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2}
+
 .celebrate{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .cel-stamp{width:210px;height:210px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 22px;color:var(--saffron);border:5px double currentColor;
   background:color-mix(in srgb,var(--paper) 80%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 12px 40px rgba(0,0,0,.28);
@@ -1052,6 +1076,9 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
       <span id="genTipsLabel">Mausam ke hisaab se tips lo</span>
     </button>
     <div class="tip-chips" id="tipChips"></div>
+    <div class="mem-tabs-wrap" id="memTabsWrap">
+      <div class="mem-tabs-scroll" id="memTabsScroll" role="tablist" aria-label="Trip members packing lists"></div>
+    </div>
     <div class="track"><div class="fill" id="cFill"></div></div>
     <div class="stat-row"><span>Ho gaya: <b id="cDone">0</b></span><span>Pending: <b id="cLeft">0</b></span></div>
     <div id="checklistBox"></div>
@@ -1286,7 +1313,7 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
   function loadTripData(id){try{return JSON.parse(localStorage.getItem(tripKey(id)))}catch(e){return null}}
   function saveTripData(id,data){try{localStorage.setItem(tripKey(id),JSON.stringify(data));return true}catch(e){return false}}
   function saveIndex(){try{localStorage.setItem(INDEX_KEY,JSON.stringify(tripsIndex))}catch(e){}}
-  function blankData(){return {setup:{from:"",dest:[],start:"",end:"",travelers:1,stay:"family",budget:"balanced",pace:"balanced"},days:[],checklist:{state:{},custom:[]},budgetData:{catBudget:{},expenses:[]},vault:[],journal:[]}}
+  function blankData(){return {setup:{from:"",dest:[],start:"",end:"",travelers:1,stay:"family",budget:"balanced",pace:"balanced"},days:[],checklist:{activeMemberId:"m_1",members:[{id:"m_1",name:"Member 1",state:{},custom:[],hidden:{},rename:{}}],state:{},custom:[],hidden:{},rename:{}},budgetData:{catBudget:{},expenses:[]},vault:[],journal:[]}}
   function labelFor(setup){return (setup.from||"Trip")+" → "+((setup.dest&&setup.dest.length)?setup.dest.join(", "):"?")}
 
   function migrateLegacy(){
@@ -1300,7 +1327,7 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     var id="legacy", data=blankData();
     if(ls)data.setup=ls;
     data.days=ld;
-    data.checklist={state:lc.state||{},custom:lc.custom||[]};
+    data.checklist={activeMemberId:"m_1",members:[{id:"m_1",name:"Member 1",state:lc.state||{},custom:lc.custom||[],hidden:{},rename:{}}],state:lc.state||{},custom:lc.custom||[]};
     data.budgetData={catBudget:lb.catBudget||{},expenses:lb.expenses||[]};
     data.vault=lv;
     saveTripData(id,data);
@@ -1322,11 +1349,14 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
   var current=blankData();
   var dest=[], travelers=1, stay="family", budget="balanced", pace="balanced";
   var days=[], cState={}, cCustom=[], cHidden={}, cRename={}, catBudget={}, expenses=[], cats=defaultCats(), vault=[], journal=[];
+  var checkMembers=[], activeMemberId="m_1", editingMemberId=null;
 
   function saveActive(silent){
     current.setup={from:document.getElementById("from").value,dest:dest,start:document.getElementById("start").value,
       end:document.getElementById("end").value,travelers:travelers,stay:stay,budget:budget,pace:pace};
-    current.days=days; current.checklist={state:cState,custom:cCustom,hidden:cHidden,rename:cRename};
+    current.days=days;
+    if(typeof syncActiveMemberData==="function")syncActiveMemberData();
+    current.checklist={activeMemberId:activeMemberId,members:checkMembers,state:cState,custom:cCustom,hidden:cHidden,rename:cRename};
     current.budgetData={catBudget:catBudget,expenses:expenses,cats:cats}; current.vault=vault; current.journal=journal;
     var savedOK=saveTripData(activeId,current);
     if(!silent)flashSaved(savedOK);
@@ -1462,8 +1492,14 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     }
     if(remote.checklist){
       current.checklist=remote.checklist;
-      var ck=current.checklist;
-      cState=ck.state||{}; cCustom=normCustom(ck.custom); cHidden=ck.hidden||{}; cRename=ck.rename||{};
+      if(typeof initChecklistMembers==="function"){
+        initChecklistMembers(current.checklist);
+        editingCheck=null; editingMemberId=null;
+        renderMemberTabs();
+      }else{
+        var ck=current.checklist;
+        cState=ck.state||{}; cCustom=normCustom(ck.custom); cHidden=ck.hidden||{}; cRename=ck.rename||{};
+      }
       buildChecklist();
       cMile=levelFor(checklistStats().pct);
     }
@@ -1879,8 +1915,16 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     renderChips(); renderRoute();
     days=current.days||[]; renderDays();
     var ck=current.checklist||{};
-    cState=ck.state||{}; cCustom=normCustom(ck.custom); cHidden=ck.hidden||{}; cRename=ck.rename||{};
-    editingCheck=null; buildChecklist(); cMile=levelFor(checklistStats().pct);
+    if(typeof initChecklistMembers==="function"){
+      initChecklistMembers(ck);
+      editingCheck=null; editingMemberId=null;
+      renderMemberTabs();
+      buildChecklist();
+      cMile=levelFor(checklistStats().pct);
+    }else{
+      cState=ck.state||{}; cCustom=normCustom(ck.custom); cHidden=ck.hidden||{}; cRename=ck.rename||{};
+      editingCheck=null; buildChecklist(); cMile=levelFor(checklistStats().pct);
+    }
     var bd=current.budgetData||{};
     catBudget=bd.catBudget||{}; expenses=bd.expenses||[];
     cats=(Array.isArray(bd.cats)&&bd.cats.length)?bd.cats:defaultCats();
@@ -1915,7 +1959,18 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
   };
   document.getElementById("destInput").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("addDest").click()}};
   document.getElementById("minus").onclick=function(){if(travelers>1)travelers--;document.getElementById("count").textContent=travelers;saveActive()};
-  document.getElementById("plus").onclick=function(){travelers++;document.getElementById("count").textContent=travelers;saveActive()};
+  document.getElementById("plus").onclick=function(){
+    travelers++;
+    document.getElementById("count").textContent=travelers;
+    if(typeof checkMembers!=="undefined"&&checkMembers.length<travelers){
+      if(typeof syncActiveMemberData==="function")syncActiveMemberData();
+      for(var ti=checkMembers.length+1;ti<=travelers;ti++){
+        checkMembers.push({id:"m_"+ti+"_"+Date.now(),name:"Member "+ti,state:{},custom:[],hidden:{},rename:{}});
+      }
+      if(typeof renderMemberTabs==="function")renderMemberTabs();
+    }
+    saveActive();
+  };
   function seg(id,onSet){
     var box=document.getElementById(id);
     box.querySelectorAll("button").forEach(function(b){
@@ -1952,7 +2007,17 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     if(idx<=lastIdx)return{phase:"during",idx:idx,total:lastIdx+1};
     return{phase:"after"};
   }
-  function packingStats(){return checklistStats()}
+  function packingStats(){
+    if(!checkMembers||checkMembers.length<=1)return checklistStats();
+    if(typeof syncActiveMemberData==="function")syncActiveMemberData();
+    var tot=0,dn=0;
+    checkMembers.forEach(function(m){
+      var s=memberStats(m);
+      tot+=s.total;
+      dn+=s.done;
+    });
+    return {total:tot,done:dn,pct:tot?Math.round(dn/tot*100):0};
+  }
   function openEdit(){
     var pnl=document.getElementById("editPanel");
     pnl.hidden=false;
@@ -2784,13 +2849,316 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     return d;
   }
 
-  // ---------- Checklist (edit/delete any item, milestone celebration) ----------
+  // ---------- Checklist (multi-member lists, tabs, edit/delete any item, milestone celebration) ----------
   var CATS=[["Documents",["Train tickets","ID proof","Cash / UPI"]],
     ["Kapde",["Cotton tees","Swimwear","Full-sleeve kurta (temple)","Halki jacket"]],
     ["Toiletries",["Sunscreen","Mosquito repellent","Basic medicine kit"]],
     ["Electronics",["Phone charger","Power bank"]],
     ["Gifts",["Didiyon ke liye gift","ChocoMaa chocolates"]]];
   var editingCheck=null, focusCheck=false, cMile=0;
+  var checkMembers=[], activeMemberId="m_1", editingMemberId=null;
+
+  var PENCIL_MINI='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg>';
+  var CHECK_MINI='<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+  var TRASH_MINI='<svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>';
+  var CLOSE_MINI='<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+
+  function normMember(m,idx){
+    if(!m||typeof m!=="object")m={};
+    return {
+      id:String(m.id||("m_"+(idx+1))),
+      name:String(m.name||("Member "+(idx+1))).trim()||("Member "+(idx+1)),
+      state:(m.state&&typeof m.state==="object")?m.state:{},
+      custom:normCustom(m.custom),
+      hidden:(m.hidden&&typeof m.hidden==="object")?m.hidden:{},
+      rename:(m.rename&&typeof m.rename==="object")?m.rename:{}
+    };
+  }
+
+  function getActiveMember(){
+    for(var i=0;i<checkMembers.length;i++){
+      if(checkMembers[i].id===activeMemberId)return checkMembers[i];
+    }
+    return checkMembers[0]||null;
+  }
+
+  function syncActiveMemberData(){
+    var m=getActiveMember();
+    if(!m)return;
+    m.state=cState;
+    m.custom=cCustom;
+    m.hidden=cHidden;
+    m.rename=cRename;
+  }
+
+  function loadActiveMemberData(){
+    var m=getActiveMember();
+    if(!m)return;
+    cState=m.state||{};
+    cCustom=m.custom||[];
+    cHidden=m.hidden||{};
+    cRename=m.rename||{};
+    var inp=document.getElementById("newItem");
+    if(inp)inp.placeholder=m.name+" ke liye item jodo";
+  }
+
+  function initChecklistMembers(ck){
+    ck=ck||{};
+    var mems=[];
+    if(Array.isArray(ck.members)&&ck.members.length>0){
+      mems=ck.members.map(normMember);
+    }else{
+      var m1={
+        id:"m_1",
+        name:"Member 1",
+        state:(ck.state&&typeof ck.state==="object")?ck.state:{},
+        custom:normCustom(ck.custom),
+        hidden:(ck.hidden&&typeof ck.hidden==="object")?ck.hidden:{},
+        rename:(ck.rename&&typeof ck.rename==="object")?ck.rename:{}
+      };
+      mems.push(m1);
+      var tCount=parseInt(travelers,10)||1;
+      for(var i=2;i<=tCount;i++){
+        mems.push({id:"m_"+i,name:"Member "+i,state:{},custom:[],hidden:{},rename:{}});
+      }
+    }
+    checkMembers=mems;
+    var activeValid=checkMembers.some(function(m){return m.id===ck.activeMemberId});
+    activeMemberId=activeValid?ck.activeMemberId:checkMembers[0].id;
+    loadActiveMemberData();
+  }
+
+  function memberStats(m){
+    if(!m)return {total:0,done:0,pct:0};
+    var s=m.state||{}, hid=m.hidden||{}, cust=m.custom||[];
+    var total=0, done=0;
+    CATS.forEach(function(g,gi){
+      g[1].forEach(function(orig){
+        var key=gi+":"+orig;
+        if(!hid[key]){
+          total++;
+          if(s[key])done++;
+        }
+      });
+    });
+    cust.forEach(function(c){
+      var key=CATS.length+":"+c.id;
+      total++;
+      if(s[key])done++;
+    });
+    return {total:total,done:done,pct:total?Math.round(done/total*100):0};
+  }
+
+  function switchMember(newId){
+    if(newId===activeMemberId&&editingMemberId===null)return;
+    syncActiveMemberData();
+    activeMemberId=newId;
+    loadActiveMemberData();
+    editingMemberId=null;
+    editingCheck=null;
+    saveC();
+    renderMemberTabs();
+    buildChecklist();
+    cMile=levelFor(checklistStats().pct);
+  }
+
+  function addCheckMember(name){
+    syncActiveMemberData();
+    var nextNum=checkMembers.length+1;
+    var newId="m_"+Date.now();
+    var memName=(name||"").trim()||("Member "+nextNum);
+    var newMem={id:newId,name:memName,state:{},custom:[],hidden:{},rename:{}};
+    checkMembers.push(newMem);
+    if(checkMembers.length>travelers){
+      travelers=checkMembers.length;
+      var cntEl=document.getElementById("count");
+      if(cntEl)cntEl.textContent=travelers;
+    }
+    activeMemberId=newId;
+    loadActiveMemberData();
+    editingMemberId=newId;
+    editingCheck=null;
+    saveC();
+    renderMemberTabs();
+    buildChecklist();
+    cMile=levelFor(checklistStats().pct);
+  }
+
+  function renameCheckMember(id,newName){
+    var v=(newName||"").trim();
+    if(!v){showToast("Member ka naam likho",null,null,2500);return}
+    for(var i=0;i<checkMembers.length;i++){
+      if(checkMembers[i].id===id){checkMembers[i].name=v;break}
+    }
+    editingMemberId=null;
+    loadActiveMemberData();
+    saveC();
+    renderMemberTabs();
+    buildChecklist();
+  }
+
+  function deleteCheckMember(id){
+    if(checkMembers.length<=1){
+      showToast("Kam se kam ek member hona chahiye",null,null,2500);
+      return;
+    }
+    syncActiveMemberData();
+    var idx=-1;
+    for(var i=0;i<checkMembers.length;i++){
+      if(checkMembers[i].id===id){idx=i;break}
+    }
+    if(idx===-1)return;
+    var removed=checkMembers.splice(idx,1)[0];
+    if(activeMemberId===id){
+      var nextIdx=Math.max(0,idx-1);
+      activeMemberId=checkMembers[nextIdx].id;
+      loadActiveMemberData();
+    }
+    editingMemberId=null;
+    saveC();
+    renderMemberTabs();
+    buildChecklist();
+    cMile=levelFor(checklistStats().pct);
+    showToast("Member '"+removed.name+"' hata diya","Undo",function(){
+      checkMembers.splice(idx,0,removed);
+      activeMemberId=removed.id;
+      loadActiveMemberData();
+      saveC();
+      renderMemberTabs();
+      buildChecklist();
+      cMile=levelFor(checklistStats().pct);
+    });
+  }
+
+  function updateMemberTabsBadges(){
+    syncActiveMemberData();
+    checkMembers.forEach(function(m){
+      var el=document.querySelector('.mem-tab-badge[data-mid="'+m.id+'"]');
+      if(el){
+        var st=memberStats(m);
+        el.textContent=st.done+"/"+st.total;
+      }
+    });
+  }
+
+  function renderMemberTabs(){
+    var scroll=document.getElementById("memTabsScroll");
+    if(!scroll)return;
+    scroll.innerHTML="";
+
+    checkMembers.forEach(function(m){
+      var isActive=(m.id===activeMemberId);
+      var isEditing=(m.id===editingMemberId);
+
+      if(isEditing){
+        var wrap=mk("div","mem-tab-inline-edit");
+        wrap.setAttribute("role","group");
+        wrap.setAttribute("aria-label",m.name+" edit karo");
+
+        var inp=document.createElement("input");
+        inp.type="text";
+        inp.className="mem-tab-input";
+        inp.value=m.name;
+        inp.maxLength=24;
+        inp.setAttribute("aria-label","Member ka naam");
+
+        function commit(){
+          renameCheckMember(m.id,inp.value);
+        }
+
+        inp.onkeydown=function(e){
+          if(e.key==="Enter"){e.preventDefault();commit()}
+          else if(e.key==="Escape"){e.preventDefault();editingMemberId=null;renderMemberTabs()}
+        };
+
+        var okBtn=mk("button","mem-tab-btn-ok");
+        okBtn.type="button";
+        okBtn.title="Save";
+        okBtn.setAttribute("aria-label","Save member naam");
+        okBtn.innerHTML=CHECK_MINI;
+        okBtn.onclick=commit;
+
+        wrap.appendChild(inp);
+        wrap.appendChild(okBtn);
+
+        if(checkMembers.length>1){
+          var delBtn=mk("button","mem-tab-btn-del");
+          delBtn.type="button";
+          delBtn.title="Member hatao";
+          delBtn.setAttribute("aria-label","Member hatao");
+          delBtn.innerHTML=TRASH_MINI;
+          delBtn.onclick=function(){deleteCheckMember(m.id)};
+          wrap.appendChild(delBtn);
+        }
+
+        var cancelBtn=mk("button","mem-tab-btn-cancel");
+        cancelBtn.type="button";
+        cancelBtn.title="Cancel";
+        cancelBtn.setAttribute("aria-label","Cancel");
+        cancelBtn.innerHTML=CLOSE_MINI;
+        cancelBtn.onclick=function(){editingMemberId=null;renderMemberTabs()};
+        wrap.appendChild(cancelBtn);
+
+        scroll.appendChild(wrap);
+        setTimeout(function(){inp.focus();inp.select()},25);
+      }else{
+        var tab=mk("div","mem-tab"+(isActive?" active":""));
+        tab.setAttribute("role","tab");
+        tab.setAttribute("tabindex","0");
+        tab.setAttribute("aria-selected",isActive?"true":"false");
+
+        var nm=mk("span","mem-tab-name",m.name);
+        tab.appendChild(nm);
+
+        var st=memberStats(m);
+        var badge=mk("span","mem-tab-badge",st.done+"/"+st.total);
+        badge.dataset.mid=m.id;
+        tab.appendChild(badge);
+
+        if(isActive){
+          var eb=mk("button","mem-tab-edit-btn");
+          eb.type="button";
+          eb.title="Naam badlo";
+          eb.setAttribute("aria-label",m.name+" naam badlo");
+          eb.innerHTML=PENCIL_MINI;
+          eb.onclick=function(e){
+            e.stopPropagation();
+            editingMemberId=m.id;
+            renderMemberTabs();
+          };
+          tab.appendChild(eb);
+        }
+
+        tab.onclick=function(e){
+          if(e.target.closest(".mem-tab-edit-btn"))return;
+          switchMember(m.id);
+        };
+        tab.onkeydown=function(e){
+          if(e.key==="Enter"||e.key===" "){
+            e.preventDefault();
+            switchMember(m.id);
+          }
+        };
+
+        scroll.appendChild(tab);
+      }
+    });
+
+    var addBtn=mk("button","mem-tab-add");
+    addBtn.type="button";
+    addBtn.id="addMemTabBtn";
+    addBtn.title="Naya member jodo";
+    addBtn.setAttribute("aria-label","Naya member jodo");
+    addBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>+ Member</span>';
+    addBtn.onclick=function(){addCheckMember()};
+    scroll.appendChild(addBtn);
+
+    var activeTabEl=scroll.querySelector(".mem-tab.active,.mem-tab-inline-edit");
+    if(activeTabEl&&typeof activeTabEl.scrollIntoView==="function"){
+      try{activeTabEl.scrollIntoView({behavior:"smooth",inline:"nearest",block:"nearest"})}catch(e){}
+    }
+  }
+
   function normCustom(arr){
     return (arr||[]).map(function(x,i){
       return (typeof x==="string")?{id:"c"+i,text:x}:{id:x.id||("c"+i),text:x.text||""};
@@ -2808,7 +3176,9 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
         return{key:key,text:cRename[key]||orig,def:true,orig:orig};
       }).filter(function(it){return !cHidden[it.key]})};
     });
-    groups.push({name:"Mere items",gi:CATS.length,items:cCustom.map(function(c){
+    var act=getActiveMember();
+    var grpName=act?(act.name+" ke items"):"Mere items";
+    groups.push({name:grpName,gi:CATS.length,items:cCustom.map(function(c){
       return{key:CATS.length+":"+c.id,text:c.text,def:false,ref:c};
     })});
     return groups;
@@ -2882,7 +3252,11 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
       g.items.forEach(function(it){sec.appendChild(buildCheckRow(it))});
       box.appendChild(sec);
     });
-    if(!box.children.length)box.appendChild(emptyState("suitcase","Checklist khaali hai — neeche se apna item jodo"));
+    if(!box.children.length){
+      var act=getActiveMember();
+      var emptyMsg=act?(act.name+" ki checklist khaali hai — neeche se item jodo"):"Checklist khaali hai — neeche se apna item jodo";
+      box.appendChild(emptyState("suitcase",emptyMsg));
+    }
     if(hiddenCount){
       var rb=mk("button","restore-def","Hataye hue default items wapas lao ("+hiddenCount+")");rb.type="button";
       rb.onclick=function(){cHidden={};saveC();buildChecklist();checkMilestone(false)};
@@ -2901,6 +3275,7 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     document.getElementById("cDone").textContent=st.done;
     document.getElementById("cLeft").textContent=st.total-st.done;
     document.getElementById("cFill").style.width=st.pct+"%";
+    updateMemberTabsBadges();
   }
   function checkMilestone(celebrateNow){
     var lvl=levelFor(checklistStats().pct);
@@ -3659,8 +4034,16 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
     });
     L.push("");
     L.push("-- Checklist --");
-    var cs0=checklistStats(), totalC=cs0.total, doneC=cs0.done;
-    L.push(doneC+" / "+totalC+" items done"); L.push("");
+    if(typeof checkMembers!=="undefined"&&checkMembers&&checkMembers.length>1){
+      checkMembers.forEach(function(m){
+        var ms=memberStats(m);
+        L.push("  "+m.name+": "+ms.done+" / "+ms.total+" items done");
+      });
+    }else{
+      var cs0=checklistStats(), totalC=cs0.total, doneC=cs0.done;
+      L.push(doneC+" / "+totalC+" items done");
+    }
+    L.push("");
     L.push("-- Budget --");
     var tb=0,ts=0; Object.keys(catBudget).forEach(function(c){tb+=catBudget[c]||0}); expenses.forEach(function(e){ts+=e.amt});
     L.push("Budget: Rs"+tb+" | Spent: Rs"+ts+" | Left: Rs"+(tb-ts));

@@ -162,19 +162,29 @@ Data storage in Yatra is partitioned across **LocalStorage** (for structured JSO
     }
   ],
   "checklist": {
-    "state": {
-      "0:Train tickets": true,
-      "1:Cotton tees": true
-    },
-    "custom": [
-      { "id": "c0", "text": "Goa sunscreen SPF 50" }
+    "activeMemberId": "m_1",
+    "members": [
+      {
+        "id": "m_1",
+        "name": "Aditya",
+        "state": { "0:Train tickets": true, "1:Cotton tees": true },
+        "custom": [ { "id": "c0", "text": "Goa sunscreen SPF 50" } ],
+        "hidden": { "0:Cash / UPI": true },
+        "rename": { "0:Train tickets": "IRCTC e-Tickets printout" }
+      },
+      {
+        "id": "m_2",
+        "name": "Harshit",
+        "state": { "0:ID proof": true },
+        "custom": [ { "id": "c0", "text": "Power bank wire" } ],
+        "hidden": {},
+        "rename": {}
+      }
     ],
-    "hidden": {
-      "0:Cash / UPI": true
-    },
-    "rename": {
-      "0:Train tickets": "IRCTC e-Tickets printout"
-    }
+    "state": { "0:Train tickets": true, "1:Cotton tees": true },
+    "custom": [ { "id": "c0", "text": "Goa sunscreen SPF 50" } ],
+    "hidden": { "0:Cash / UPI": true },
+    "rename": { "0:Train tickets": "IRCTC e-Tickets printout" }
   },
   "budgetData": {
     "catBudget": {
@@ -253,8 +263,12 @@ Below is an itemized breakdown of the functional modules in `index.html`:
 - `drawDayImage(ctx, di, W, dry)` / `dayImageBlob(di)`: Generates a high-resolution 1080px branded PNG ticket directly on an HTML5 `<canvas>` for image sharing.
 - `buildItineraryPdf()`: Lightweight vector PDF generator written from scratch without dependencies, writing raw PDF dictionary streams (`/Type /Page`, `/MediaBox`, fonts) into an uncompressed binary Blob.
 
-### 5.5 Packing Checklist
-- `buildChecklist()` / `updateChecklist()`: Groups items into default and custom sets, computes completion percentage, and tracks hidden/renamed defaults.
+### 5.5 Packing Checklist (Multi-Member Tabs)
+- `renderMemberTabs()`: Renders interactive member pill tabs (`.mem-tab`) with completion badges (`done/total`), inline rename inputs (`.mem-tab-inline-edit`), delete buttons, and `+ Member` creation button.
+- `switchMember(id)`: Transitions between trip members, syncing active state and refreshing category groups, progress bars, and custom items.
+- `addCheckMember(name)` / `renameCheckMember(id, name)` / `deleteCheckMember(id)`: Full CRUD for trip members with toast undo capability.
+- `memberStats(m)` / `packingStats()`: Calculates individual per-member packing progress and aggregate trip-wide packing metrics for the Home dashboard.
+- `buildChecklist()` / `updateChecklist()`: Groups items into default and member-specific custom sets (`<Member> ke items`), computes completion percentage, and tracks hidden/renamed defaults.
 - `celebrate(level)`: Triggers full-screen SVG stamp animations and 46 random CSS confetti particles upon reaching 50% and 100% packing milestones.
 
 ### 5.6 Budget & Expense Analytics
